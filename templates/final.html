@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style/style.css') }}">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.3.5/jspdf.min.js"></script>
+
+    <title>Voice-Based Template Filling</title>
+    
+</head>
+<body>
+    
+    <nav class="navbar navbar-expand-lg navbar-light bg-tertiary ">
+        <div class="container">
+          <a class="navbar-brand text-light" href="http://127.0.0.1:5500/Speech_to_Text/DoctorCare-LandingPage-NLW/index.html">MediVoice</a>
+          <button class="navbar-toggler text-light" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon text-light"></span>
+          </button>
+          <div class="collapse navbar-collapse text-light" id="navbarNavDropdown">
+            <ul class="navbar-nav ml-auto">
+              <li class="nav-item active">
+                <a class="nav-link text-light" href="http://127.0.0.1:5500/Speech_to_Text/DoctorCare-LandingPage-NLW/index.html">Home <span class="sr-only">(current)</span></a>
+              </li>
+              
+              <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle text-light" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  Select Template
+                </a>
+                <div class="dropdown-menu " aria-labelledby="navbarDropdownMenuLink">
+                  <a class="dropdown-item " href="#">Brain Template</a>
+                  <a class="dropdown-item " href="#">Heart Template</a>
+                  <a class="dropdown-item " href="#">Lower Body Template</a>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </nav>
+      
+      <main class="container mt-5">
+        <div class="row">
+            <section class="left col-md-6 p-4">
+                <section class="personalInfo">
+                    <h2 class="font-weight-bold text-xl mb-4">Patient Information</h2>
+                    <!-- Patient information recording buttons and audio player -->
+                    <div class="patient-buttons">
+                        <button id="startRecordingPatient" class="btn btn-primary">Start Recording</button>
+                        <button id="stopRecordingPatient" class="btn btn-secondary ml-2" disabled>Stop Recording</button>
+                    </div>
+                    <div class="mt-4">
+                        <audio id="audioPatient" controls></audio>
+                    </div>
+                    <button id="transcribeButtonPatient" class="btn btn-success mt-4" disabled>Transcribe</button>
+                </section>
+    
+                <section class="observations mt-5">
+                    <h2 class="font-weight-bold text-xl mb-4">Techniques</h2>
+                    <!-- Observation section buttons -->
+                    <div class="observation-buttons">
+                        <button id="startRecordingTechniques" class="btn btn-primary">Start Recording</button>
+                        <button id="stopRecordingTechniques" class="btn btn-secondary ml-2" disabled>Stop Recording</button>
+                    </div>
+                    <div class="mt-4">
+                        <audio id="audioTechniques" controls></audio>
+                    </div>
+                    <button id="transcribeButtonTechniques" class="btn btn-success mt-4" disabled>Transcribe</button>
+                </section>
+
+                <section class="observations mt-5">
+                    <h2 class="font-weight-bold text-xl mb-4">Findings</h2>
+                    <!-- Observation section buttons -->
+                    <div class="observation-buttons">
+                        <button id="startRecordingFindings" class="btn btn-primary">Start Recording</button>
+                        <button id="stopRecordingFindings" class="btn btn-secondary ml-2" disabled>Stop Recording</button>
+                    </div>
+                    <div class="mt-4">
+                        <audio id="audioFindings" controls></audio>
+                    </div>
+                    <button id="transcribeButtonFindings" class="btn btn-success mt-4" disabled>Transcribe</button>
+                </section>
+
+
+                <section class="observations mt-5">
+                    <h2 class="font-weight-bold text-xl mb-4">Impressions</h2>
+                    <!-- Observation section buttons -->
+                    <div class="observation-buttons">
+                        <button id="startRecordingObservations" class="btn btn-primary">Start Recording</button>
+                        <button id="stopRecordingObservations" class="btn btn-secondary ml-2" disabled>Stop Recording</button>
+                    </div>
+                    <div class="mt-4">
+                        <audio id="audioObservations" controls></audio>
+                    </div>
+                    <button id="transcribeButtonObservations" class="btn btn-success mt-4" disabled>Transcribe</button>
+                </section>
+                
+            </section>
+    
+            <section class="right col-md-6 p-4">
+                <!-- Transcription for Patient Information -->
+                <div class="patient-transcript">
+                    <h5 class="font-weight-bold text-xl mb-4">Patient Information</h5>
+                    <div id="transcriptPatient" class="mt-3"></div>
+                </div>
+    
+                <!-- Transcription for Observations -->
+                <div class="observation-transcript mt-5">
+                    <h5 class="font-weight-bold text-xl mb-4"> Techniques</h5>
+                    <div id="transcriptTechniques" class="mt-3"></div>
+                </div>
+                <div class="observation-transcript mt-5">
+                    <h5 class="font-weight-bold text-xl mb-4"> Findings</h5>
+                    <div id="transcriptFindings" class="mt-3"></div>
+                </div>
+                <div class="observation-transcript mt-5">
+                    <h5 class="font-weight-bold text-xl mb-4"> Impressions</h5>
+                    <div id="transcriptObservations" class="mt-3"></div>
+                </div>
+                <div class="download mt-5">
+                    <button id="downloadTranscripts" class="btn btn-primary mt-4">Download Report</button>
+                </div>
+            </section>
+        </div>
+    </main>
+    
+    <footer class="p-4 bg-light text-center">
+        <span>Created by Kamran, Sahil, and Yash under the guidance of Dr.Jayashree Khanapuri © </span>
+        <span class="lucide-file-text ml-2"></span>
+    </footer>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+    <script>
+        let audioStream;
+        let recorder;
+        let audioChunks = [];
+
+        const startRecordingPatientButton = document.getElementById('startRecordingPatient');
+        const stopRecordingPatientButton = document.getElementById('stopRecordingPatient');
+        const audioPatientElement = document.getElementById('audioPatient');
+        const transcribeButtonPatient = document.getElementById('transcribeButtonPatient');
+        const transcriptDivPatient = document.getElementById('transcriptPatient');
+
+        const startRecordingObservationsButton = document.getElementById('startRecordingObservations');
+        const stopRecordingObservationsButton = document.getElementById('stopRecordingObservations');
+        const audioObservationsElement = document.getElementById('audioObservations');
+        const transcribeButtonObservations = document.getElementById('transcribeButtonObservations');
+        const transcriptDivObservations = document.getElementById('transcriptObservations');
+
+
+        // <----- Findings ------->
+        const startRecordingFindingsButton = document.getElementById('startRecordingFindings');
+        const stopRecordingFindingsButton = document.getElementById('stopRecordingFindings');
+        const audioFindingsElement = document.getElementById('audioFindings');
+        // const transcribeButtonFindings = document.getElementById('transcribeButtonFindings');
+        // const transcriptDivFindings = document.getElementById('transcriptFindings');
+
+        // <----------Techniques---------------->
+        
+        const startRecordingTechniquesButton = document.getElementById('startRecordingTechniques');
+        const stopRecordingTechniquesButton = document.getElementById('stopRecordingTechniques');
+        const audioTechniquesElement = document.getElementById('audioTechniques');
+        // const transcribeButtonTechniques = document.getElementById('transcribeButtonTechniques');
+        // const transcriptDivTechniques = document.getElementById('transcriptTechniques');
+
+
+        startRecordingPatientButton.addEventListener('click', async () => {
+            try {
+                audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                recorder = new MediaRecorder(audioStream);
+                recorder.start();
+                startRecordingPatientButton.disabled = true;
+                stopRecordingPatientButton.disabled = false;
+                audioChunks = [];
+
+                recorder.ondataavailable = (event) => {
+                    audioChunks.push(event.data);
+                };
+
+                recorder.onstop = () => {
+                    const audioBlob = new Blob(audioChunks, { 'type': 'audio/wav' });
+                    audioPatientElement.src = URL.createObjectURL(audioBlob);
+                    audioPatientElement.controls = true;
+                    transcribeButtonPatient.disabled = false;
+                };
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        });
+
+        stopRecordingPatientButton.addEventListener('click', () => {
+            recorder.stop();
+            startRecordingPatientButton.disabled = false;
+            stopRecordingPatientButton.disabled = true;
+        });
+
+        transcribeButtonPatient.addEventListener('click', async () => {
+            const formData = new FormData();
+            formData.append('audio_file', new Blob(audioChunks, { 'type': 'audio/wav' }), 'audio.wav');
+
+            try {
+                const response = await fetch('/transcribe', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const transcript = await response.text();
+            // Split the transcript into parts wherever 'enter' occurs
+            const parts = transcript.split('enter');
+            // Join the parts with a line break between them
+            const formattedTranscript = parts.join('\n');
+            // Update the transcript content with the formatted transcript
+            transcriptDivPatient.innerText = formattedTranscript;
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        });
+
+        // Logic for the "Observations" section...
+        // (You can use the same logic with different IDs for the "Observations" section)
+
+        // Define variables for the "Observations" section
+    const startRecordingButtonObservation = document.getElementById('startRecordingObservations');
+    const stopRecordingButtonObservation = document.getElementById('stopRecordingObservations');
+    const audioElementObservation = document.getElementById('audioObservations');
+    const transcribeButtonObservation = document.getElementById('transcribeButtonObservations');
+    const transcriptDivObservation = document.getElementById('transcriptObservations');
+
+    // Add event listener for starting recording in the "Observations" section
+    startRecordingButtonObservation.addEventListener('click', async () => {
+        try {
+            audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            recorder = new MediaRecorder(audioStream);
+            recorder.start();
+            startRecordingButtonObservation.disabled = true;
+            stopRecordingButtonObservation.disabled = false;
+            audioChunks = [];
+
+            recorder.ondataavailable = (event) => {
+                audioChunks.push(event.data);
+            };
+
+            recorder.onstop = () => {
+                const audioBlob = new Blob(audioChunks, { 'type': 'audio/wav' });
+                audioElementObservation.src = URL.createObjectURL(audioBlob);
+                audioElementObservation.controls = true;
+                transcribeButtonObservation.disabled = false;
+            };
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    });
+
+    // Add event listener for stopping recording in the "Observations" section
+    stopRecordingButtonObservation.addEventListener('click', () => {
+        recorder.stop();
+        startRecordingButtonObservation.disabled = false;
+        stopRecordingButtonObservation.disabled = true;
+    });
+
+    // Add event listener for transcribing in the "Observations" section
+    transcribeButtonObservation.addEventListener('click', async () => {
+        const formData = new FormData();
+        formData.append('audio_file', new Blob(audioChunks, { 'type': 'audio/wav' }), 'audio.wav');
+
+        try {
+            const response = await fetch('/transcribe', {
+                method: 'POST',
+                body: formData
+            });
+            const transcript = await response.text();
+            // Split the transcript into parts wherever 'enter' occurs
+            const parts = transcript.split('enter');
+            // Join the parts with a line break between them
+            const formattedTranscript = parts.join('\n');
+            // Update the transcript content with the formatted transcript
+            transcriptDivObservation.innerText = formattedTranscript;
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    });
+
+
+// <----------Findings-------------->
+const startRecordingButtonFindings = document.getElementById('startRecordingFindings');
+const stopRecordingButtonFindings = document.getElementById('stopRecordingFindings');
+const audioElementFindings = document.getElementById('audioFindings');
+const transcribeButtonFindings = document.getElementById('transcribeButtonFindings');
+const transcriptDivFindings = document.getElementById('transcriptFindings');
+
+// Add event listener for starting recording in the "Findings" section
+startRecordingButtonFindings.addEventListener('click', async () => {
+    try {
+        audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        recorder = new MediaRecorder(audioStream);
+        recorder.start();
+        startRecordingButtonFindings.disabled = true;
+        stopRecordingButtonFindings.disabled = false;
+        audioChunks = [];
+
+        recorder.ondataavailable = (event) => {
+            audioChunks.push(event.data);
+        };
+
+        recorder.onstop = () => {
+            const audioBlob = new Blob(audioChunks, { 'type': 'audio/wav' });
+            audioElementFindings.src = URL.createObjectURL(audioBlob);
+            audioElementFindings.controls = true;
+            transcribeButtonFindings.disabled = false;
+        };
+    } catch (error) {
+        console.error('Error:', error);
+    }
+});
+
+// Add event listener for stopping recording in the "Findings" section
+stopRecordingButtonFindings.addEventListener('click', () => {
+    recorder.stop();
+    startRecordingButtonFindings.disabled = false;
+    stopRecordingButtonFindings.disabled = true;
+});
+
+// Add event listener for transcribing in the "Findings" section
+transcribeButtonFindings.addEventListener('click', async () => {
+    const formData = new FormData();
+    formData.append('audio_file', new Blob(audioChunks, { 'type': 'audio/wav' }), 'audio.wav');
+
+    try {
+        const response = await fetch('/transcribe', {
+            method: 'POST',
+            body: formData
+        });
+        const transcript = await response.text();
+        // Split the transcript into parts wherever 'enter' occurs
+        const parts = transcript.split('enter');
+        // Join the parts with a line break between them
+        const formattedTranscript = parts.join('\n');
+        // Update the transcript content with the formatted transcript
+        transcriptDivFindings.innerText = formattedTranscript;
+    } catch (error) {
+        console.error('Error:', error);
+    }
+});
+
+
+// <----------Techniques-------------->
+const startRecordingButtonTechniques = document.getElementById('startRecordingTechniques');
+const stopRecordingButtonTechniques = document.getElementById('stopRecordingTechniques');
+const audioElementTechniques = document.getElementById('audioTechniques');
+const transcribeButtonTechniques = document.getElementById('transcribeButtonTechniques');
+const transcriptDivTechniques = document.getElementById('transcriptTechniques');
+
+// Add event listener for starting recording in the "Techniques" section
+startRecordingButtonTechniques.addEventListener('click', async () => {
+    try {
+        audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        recorder = new MediaRecorder(audioStream);
+        recorder.start();
+        startRecordingButtonTechniques.disabled = true;
+        stopRecordingButtonTechniques.disabled = false;
+        audioChunks = [];
+
+        recorder.ondataavailable = (event) => {
+            audioChunks.push(event.data);
+        };
+
+        recorder.onstop = () => {
+            const audioBlob = new Blob(audioChunks, { 'type': 'audio/wav' });
+            audioElementTechniques.src = URL.createObjectURL(audioBlob);
+            audioElementTechniques.controls = true;
+            transcribeButtonTechniques.disabled = false;
+        };
+    } catch (error) {
+        console.error('Error:', error);
+    }
+});
+
+// Add event listener for stopping recording in the "Techniques" section
+stopRecordingButtonTechniques.addEventListener('click', () => {
+    recorder.stop();
+    startRecordingButtonTechniques.disabled = false;
+    stopRecordingButtonTechniques.disabled = true;
+});
+
+// Add event listener for transcribing in the "Techniques" section
+transcribeButtonTechniques.addEventListener('click', async () => {
+    const formData = new FormData();
+    formData.append('audio_file', new Blob(audioChunks, { 'type': 'audio/wav' }), 'audio.wav');
+
+    try {
+        const response = await fetch('/transcribe', {
+            method: 'POST',
+            body: formData
+        });
+        const transcript = await response.text();
+        // Split the transcript into parts wherever 'enter' occurs
+        const parts = transcript.split('enter');
+        // Join the parts with a line break between them
+        const formattedTranscript = parts.join('\n');
+        // Update the transcript content with the formatted transcript
+        transcriptDivTechniques.innerText = formattedTranscript;
+    } catch (error) {
+        console.error('Error:', error);
+    }
+});
+    
+document.getElementById('downloadTranscripts').addEventListener('click', () => {
+    // Get the content of the patient transcript, observations transcript, findings transcript, and techniques transcript
+    const patientTranscriptContent = document.getElementById('transcriptPatient').innerText;
+    const observationTranscriptContent = document.getElementById('transcriptObservations').innerText;
+    const findingsTranscriptContent = document.getElementById('transcriptFindings').innerText;
+    const techniquesTranscriptContent = document.getElementById('transcriptTechniques').innerText;
+
+    // Create a new jsPDF instance
+    const pdf = new jsPDF();
+
+    // Set font properties for the PDF
+    pdf.setFont('courier');
+    pdf.setFontSize(12);
+
+
+    pdf.setFontStyle('bold');
+    pdf.text("City Hospital Mumbai", 10, 10);
+    
+    pdf.setFontStyle('normal');
+    pdf.text("Generated on: " + new Date().toLocaleDateString(), 10, 20);
+    let yOffset = 30;
+
+    // Add patient information
+    pdf.setFontStyle('bold');
+    pdf.text("Patient Information:", 10, yOffset);
+    pdf.setFontStyle('normal');
+    pdf.text(patientTranscriptContent, 10, yOffset + 10);
+    // pdf.line(10, yOffset + 30, 200, yOffset + 30);
+    // pdf.line(10, 40, 200, 40);
+    yOffset += 50;
+    const observationsTextY = 80; // Adjust this value as needed
+    pdf.setFontStyle('bold');
+    pdf.text("Observations:", 10, observationsTextY);
+    pdf.setFontStyle('normal');
+    pdf.text(observationTranscriptContent, 10, observationsTextY + 10);
+    // pdf.line(10, observationsTextY + 30, 200, observationsTextY + 30);
+
+    const findingsTextY = observationsTextY + 50; // Adjust this value as needed
+    pdf.setFontStyle('bold');
+    pdf.text("Findings:", 10, findingsTextY);
+    pdf.setFontStyle('normal');
+    pdf.text(findingsTranscriptContent, 10, findingsTextY + 10);
+    // pdf.line(10, findingsTextY + 30, 200, findingsTextY + 30);
+
+    const techniquesTextY = findingsTextY + 50; // Adjust this value as needed
+    pdf.setFontStyle('bold');
+    pdf.text("Techniques:", 10, techniquesTextY);
+    pdf.setFontStyle('normal');
+    pdf.text(techniquesTranscriptContent, 10, techniquesTextY + 10);
+    // pdf.line(10, techniquesTextY + 30, 200, techniquesTextY + 30);
+    // Add image stamp
+    const img = new Image();
+    img.src = 'data:image/png;base64,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'; // Replace 'path/to/image.png' with the path to your image
+    img.onload = function() {
+        const imgData = this.src;
+        pdf.addImage(imgData, 'PNG', 10, pdf.internal.pageSize.height - 50, 40, 40); // Adjust position and size as needed
+        // Save the PDF
+        pdf.save('report.pdf');
+    };
+});
+
+
+
+
+
+    </script>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+</body>
+</html>

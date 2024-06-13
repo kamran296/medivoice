@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audio Transcription</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.4.1/socket.io.js"></script>
+</head>
+<body>
+    <h1>Audio Transcription</h1>
+    <div id="transcription"></div>
+
+    <script>
+        // Connect to the Socket.IO server
+        const socket = io();
+
+        // Access the user's microphone
+        navigator.mediaDevices.getUserMedia({ audio: true })
+            .then(function(stream) {
+                const audioChunks = [];
+                const mediaRecorder = new MediaRecorder(stream);
+
+                // Start recording when the media recorder receives data
+                mediaRecorder.ondataavailable = function(event) {
+                    audioChunks.push(event.data);
+                };
+
+                // Send audio data to the server when recording stops
+                mediaRecorder.onstop = function() {
+                    const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+                    const reader = new FileReader();
+
+                    reader.onload = function() {
+                        const arrayBuffer = reader.result;
+                        socket.emit('audio', { chunk: arrayBuffer });
+                    };
+
+                    reader.readAsArrayBuffer(audioBlob);
+                };
+
+                // Start recording
+                document.getElementById('startRecordingButton').addEventListener('click', function() {
+                    mediaRecorder.start();
+                });
+
+                // Stop recording
+                document.getElementById('stopRecordingButton').addEventListener('click', function() {
+                    mediaRecorder.stop();
+                });
+            })
+            .catch(function(err) {
+                console.error('Error accessing microphone:', err);
+            });
+
+        // Receive transcription from the server and update the UI
+        socket.on('transcription', function(data) {
+            document.getElementById('transcription').innerText = data.text;
+        });
+    </script>
+</body>
+</html>
